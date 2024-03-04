@@ -26,6 +26,9 @@ WorkflowSeqdepthversusassembly.initialise(params, log)
     IMPORT NF-CORE MODULES/SUBWORKFLOWS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
+include { RASUSA } from '../modules/nf-core/rasusa/main'
+
+
 
 //
 // MODULE: Installed directly from nf-core/modules
