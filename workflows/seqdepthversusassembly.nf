@@ -26,8 +26,10 @@ WorkflowSeqdepthversusassembly.initialise(params, log)
     IMPORT NF-CORE MODULES/SUBWORKFLOWS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-include { RASUSA } from '../modules/nf-core/rasusa/main'
-
+include { RASUSA               } from '../modules/nf-core/rasusa/main'
+include { FLYE                 } from '../modules/nf-core/flye/main'
+include { SOURMASH_SKETCH      } from '../modules/nf-core/sourmash/sketch/main'
+include { SOURMASH_COMPARE     } from '../modules/nf-core/sourmash/compare/main'
 
 
 //
@@ -44,7 +46,54 @@ include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoft
 
 workflow SEQDEPTHVERSUSASSEMBLY {
 
+
     ch_versions = Channel.empty()
+
+
+    // fastq file with reads
+    fastq = file(params.input)
+
+    // refgenome channel
+    refgenome_ch = Channel.empty()
+    if (params.refgenome) {
+        refgenome_ch = Channel.of([["id": "reference"], file(params.refgenome)])
+    }
+
+    // create base meta map
+    meta = ["sample": fastq.simpleName, "single_end": true]
+
+    // create a range of sequencing depths steps to test
+    seqdepths = Channel.of((params.min_depth..params.max_depth).by(params.step_size))
+
+    // construct a channel with all target depths 
+    seqdepths.map {
+        depth -> [meta.plus(["depth": depth, "id": "${meta.sample}_${depth}x"]), fastq, "4.7m"]
+    }.set { reads }
+
+    // Subsample
+    RASUSA(reads, reads.map{ meta, fq, genome_size -> meta.depth}) // extract depth here as a separate but parallel channel
+
+    // Assemble subsampled reads
+    FLYE(RASUSA.out.reads, "--nano-raw")
+
+    // Add optional reference genome
+    assemblies = FLYE.out.fasta.mix(refgenome_ch)
+
+    // Sketch assemblies
+    SOURMASH_SKETCH(assemblies)
+
+    // collect all signatures into a single list and add a meta map
+    signatures = SOURMASH_SKETCH.out.signatures
+    .map {
+        meta, sigs -> sigs
+    }
+    .collect()
+    .map {
+        sigs -> [["id": "comparison"],sigs]
+    }
+    
+    // compare the signatures
+    SOURMASH_COMPARE(signatures, [], false, true)
 
     // ch_versions = ch_versions.mix(FASTQC.out.versions.first())
 

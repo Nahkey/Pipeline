@@ -16,9 +16,8 @@
                     "type": "string",
                     "format": "file-path",
                     "exists": true,
-                    "mimetype": "text/csv",
-                    "pattern": "^\\S+\\.csv$",
-                    "description": "Path to comma-separated file containing information about the samples in the experiment.",
+                    "pattern": "^\\S+\\.fastq.gz$",
+                    "description": "Path to FASTQ file",
                     "help_text": "You will need to create a design file with information about the samples in your experiment before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 3 columns, and a header row.",
                     "fa_icon": "fas fa-file-csv"
                 },
@@ -34,26 +33,37 @@
                     "fa_icon": "fas fa-envelope",
                     "help_text": "Set this parameter to your e-mail address to get a summary e-mail with details of the run sent to you when the workflow exits. If set in your user config file (`~/.nextflow/config`) then you don't need to specify this on the command line for every run.",
                     "pattern": "^([a-zA-Z0-9_\\-\\.]+)@([a-zA-Z0-9_\\-\\.]+)\\.([a-zA-Z]{2,5})$"
+                },
+                "refgenome": {
+                    "type": "string",
+                    "pattern": "^\\S+\\.fasta$",
+                    "description": "Reference genome (fasta)"
                 }
             }
         },
-        "reference_genome_options": {
-            "title": "Reference genome options",
+        "sequence_depth_options": {
+            "title": "Sequence depth options",
             "type": "object",
-            "fa_icon": "fas fa-dna",
-            "description": "Reference genome related files and options required for the workflow.",
+            "description": "",
+            "default": "",
             "properties": {
-                "fasta": {
-                    "type": "string",
-                    "format": "file-path",
-                    "exists": true,
-                    "mimetype": "text/plain",
-                    "pattern": "^\\S+\\.fn?a(sta)?(\\.gz)?$",
-                    "description": "Path to FASTA genome file.",
-                    "help_text": "This parameter is *mandatory* if `--genome` is not specified. If you don't have a BWA index available this will be generated for you automatically. Combine with `--save_reference` to save BWA index for future runs.",
-                    "fa_icon": "far fa-file-code"
+                "min_depth": {
+                    "type": "integer",
+                    "default": 10,
+                    "description": "Minimum sequence depth"
+                },
+                "max_depth": {
+                    "type": "integer",
+                    "default": 150,
+                    "description": "Maximum sequence depth"
+                },
+                "step_size": {
+                    "type": "integer",
+                    "default": 10,
+                    "description": "Step size between sequence depth steps"
                 }
-            }
+            },
+            "required": ["min_depth", "max_depth"]
         },
         "institutional_config_options": {
             "title": "Institutional config options",
@@ -229,7 +239,7 @@
             "$ref": "#/definitions/input_output_options"
         },
         {
-            "$ref": "#/definitions/reference_genome_options"
+            "$ref": "#/definitions/sequence_depth_options"
         },
         {
             "$ref": "#/definitions/institutional_config_options"
