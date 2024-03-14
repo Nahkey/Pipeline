@@ -67,7 +67,7 @@ workflow SEQDEPTHVERSUSASSEMBLY {
 
     // construct a channel with all target depths 
     seqdepths.map {
-        depth -> [meta.plus(["depth": depth, "id": "${meta.sample}_${depth}x"]), fastq, "4.7m"]
+        depth -> [meta.plus(["depth": depth, "id": "${meta.sample}_${depth}x"]), fastq, "4.88m"]
     }.set { reads }
 
     // Subsample
