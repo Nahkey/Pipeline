@@ -1,7 +1,5 @@
 ## Introduction
 
-**lcab/seqdepthversusassembly** is a bioinformatics pipeline that ...
-
 <!-- TODO nf-core:
    Complete this sentence with a 2-3 sentence summary of what types of data the pipeline ingests, a brief overview of the
    major pipeline sections and the types of output it produces. You're giving an overview to someone new
@@ -12,29 +10,15 @@
      workflows use the "tube map" design for that. See https://nf-co.re/docs/contributing/design_guidelines#examples for examples.   -->
 <!-- TODO nf-core: Fill in short bullet-pointed list of the default steps in the pipeline -->
 
-1. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
-2. Present QC for raw reads ([`MultiQC`](http://multiqc.info/))
+
+**nf-seqdepthversusassembly** is a Nextflow pipeline that analyzes the interaction between sequencing depth and genome assembly accuracy. It's intended usage is by measuring the genomic distances between a known reference genome (e.g. an `ATCC` strain) and
+reconstructed genomes based on Nanopore reads from this `ATCC` strain. Using a set of Nanopore reads, the pipeline generates (though subsampling) multiple sets of reads of defined sequencing depths, assembles the reads and compares the assemblies to the reference genome. These results will aid in determining the minimal required sequencing depth for proper determination of genomic distance.
+
 
 ## Usage
 
 > [!NOTE]
 > If you are new to Nextflow and nf-core, please refer to [this page](https://nf-co.re/docs/usage/installation) on how to set-up Nextflow. Make sure to [test your setup](https://nf-co.re/docs/usage/introduction#how-to-run-a-pipeline) with `-profile test` before running the workflow on actual data.
-
-<!-- TODO nf-core: Describe the minimum required steps to execute the pipeline, e.g. how to prepare samplesheets.
-     Explain what rows and columns represent. For instance (please edit as appropriate):
-
-First, prepare a samplesheet with your input data that looks as follows:
-
-`samplesheet.csv`:
-
-```csv
-sample,fastq_1,fastq_2
-CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz
-```
-
-Each row represents a fastq file (single-end) or a pair of fastq files (paired end).
-
--->
 
 Now, you can run the pipeline using:
 
@@ -43,8 +27,17 @@ Now, you can run the pipeline using:
 ```bash
 nextflow run lcab/seqdepthversusassembly \
    -profile <docker/singularity/.../institute> \
-   --input samplesheet.csv \
+   --input reads.fastq.gz \ 
+   --refgenome refgenome.fasta \
    --outdir <OUTDIR>
+```
+
+Optional parameters (including default values):
+
+```
+   --min_depth 20     # minimal sequencing depth
+   --max_depth 150    # maximal sequencing depth
+   --step_size 10     # vary seqdepth with this stepsize 
 ```
 
 > [!WARNING]
@@ -54,10 +47,6 @@ nextflow run lcab/seqdepthversusassembly \
 ## Credits
 
 lcab/seqdepthversusassembly was originally written by Koen Bossers.
-
-We thank the following people for their extensive assistance in the development of this pipeline:
-
-<!-- TODO nf-core: If applicable, make list of people who have also contributed -->
 
 ## Contributions and Support
 
