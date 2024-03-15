@@ -29,6 +29,7 @@ nextflow run lcab/seqdepthversusassembly \
    -profile <docker/singularity/.../institute> \
    --input reads.fastq.gz \ 
    --refgenome refgenome.fasta \
+   --refgenome_size 4.88m \
    --outdir <OUTDIR>
 ```
 
